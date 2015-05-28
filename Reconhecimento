@@ -1,0 +1,61 @@
+import lejos.hardware.Button;
+import lejos.hardware.Sound;
+import lejos.hardware.port.SensorPort;
+import lejos.hardware.sensor.HiTechnicColorSensor;
+import lejos.robotics.SampleProvider;
+import lejos.utility.Delay;
+
+public class Reconhecimento implements Runnable {
+
+	private static HiTechnicColorSensor sensorCorEsq = new HiTechnicColorSensor(
+			SensorPort.S1);
+	private static HiTechnicColorSensor sensorCorDir = new HiTechnicColorSensor(
+			SensorPort.S2);
+
+	private static boolean éPreto;
+
+	private static void amostraCor() {
+
+		SampleProvider CorDir = sensorCorDir.getRGBMode();
+		SampleProvider CorEsq = sensorCorEsq.getRGBMode();
+		float amostraDir[] = new float[CorDir.sampleSize()];
+		float amostraEsq[] = new float[CorEsq.sampleSize()];
+		CorDir.fetchSample(amostraDir, 0);
+		CorEsq.fetchSample(amostraEsq, 0);
+
+		System.out.println("Dir "+amostraDir[0]);
+		System.out.println("Esq "+amostraEsq[0]);
+
+
+		if ((amostraDir[0] > 0.01 && amostraDir[0] < 0.1)
+				|| (amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)) {
+
+			CorDir.fetchSample(amostraDir, 0);
+			CorEsq.fetchSample(amostraEsq, 0);
+			System.out.println("Dir "+amostraDir[0]);
+			System.out.println("Esq "+amostraEsq[0]);
+			
+			if ((amostraDir[0] > 0.01 && amostraDir[0] < 0.1)
+					|| (amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)) {
+				éPreto = true;
+				Sound.beep();
+			}
+
+		} else {
+			éPreto = false;
+		}
+	}
+
+	public static boolean getPreto() {
+		return éPreto;
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		while (!Button.ESCAPE.isDown()) {
+			amostraCor();
+
+		}
+	}
+}
