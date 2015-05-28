@@ -1,0 +1,76 @@
+import lejos.hardware.Button;
+import lejos.hardware.Sound;
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.port.MotorPort;
+import lejos.utility.Delay;
+
+public class MainTesteSEK {
+	private static EV3LargeRegulatedMotor motorEsq = new EV3LargeRegulatedMotor(
+			MotorPort.A);
+	private static EV3LargeRegulatedMotor motorDir = new EV3LargeRegulatedMotor(
+			MotorPort.B);
+	private static EV3LargeRegulatedMotor motorCancela = new EV3LargeRegulatedMotor(
+			MotorPort.C);
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		Reconhecimento reconhecimento = new Reconhecimento();
+		Thread thReconhecimento = new Thread(reconhecimento);
+		thReconhecimento.start();
+		Sound.beepSequenceUp();
+		while (!Button.ENTER.isDown()) {
+		}
+
+		while (!Button.ESCAPE.isDown()) {
+			andar();
+			if (Button.ESCAPE.isDown()) {
+				System.exit(0);
+			}
+			if (reconhecimento.getPreto()) {
+				parar();
+				Delay.msDelay(1200);
+				if (reconhecimento.getPreto()) {
+					abrirCancela();
+					andar();
+					Delay.msDelay(1000);
+					fecharCancela();
+				}
+
+			}
+		}
+	}
+
+	private static void andar() {
+		motorEsq.setSpeed(300);
+		motorDir.setSpeed(300);
+		motorDir.forward();
+		motorEsq.forward();
+	}
+
+	private static void parar() {
+		motorEsq.stop(true);
+		motorDir.stop();
+	}
+
+	private static void ré() {
+		motorEsq.backward();
+		motorDir.backward();
+	}
+
+	private static void virarEsquerda() {
+		motorEsq.stop(true);
+		motorDir.forward();
+	}
+
+	private static void abrirCancela() {
+		motorCancela.setSpeed(500);
+		motorCancela.rotate(-1080);
+	}
+
+	private static void fecharCancela() {
+		motorCancela.setSpeed(500);
+		motorCancela.rotate(1080);
+	}
+
+}
