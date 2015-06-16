@@ -8,46 +8,68 @@ import lejos.utility.Delay;
 public class Reconhecimento implements Runnable {
 
 	private static HiTechnicColorSensor sensorCorEsq = new HiTechnicColorSensor(
-			SensorPort.S1);
+			SensorPort.S4);
 	private static HiTechnicColorSensor sensorCorDir = new HiTechnicColorSensor(
-			SensorPort.S2);
+			SensorPort.S3);
 
 	private static boolean éPreto;
+	private static boolean temBoneco;
+	private static int contNaoPreto = 0;
+	public static int contPreto = 0;
 
 	private static void amostraCor() {
 
-		SampleProvider CorDir = sensorCorDir.getRGBMode();
 		SampleProvider CorEsq = sensorCorEsq.getRGBMode();
-		float amostraDir[] = new float[CorDir.sampleSize()];
+		SampleProvider CorDir = sensorCorDir.getRGBMode();
 		float amostraEsq[] = new float[CorEsq.sampleSize()];
-		CorDir.fetchSample(amostraDir, 0);
+		float amostraDir[] = new float[CorDir.sampleSize()];
 		CorEsq.fetchSample(amostraEsq, 0);
+		CorDir.fetchSample(amostraDir, 0);
 
-		System.out.println("Dir "+amostraDir[0]);
-		System.out.println("Esq "+amostraEsq[0]);
+		System.out.println("Dir: " + amostraDir[0] + "\nEsq: " + amostraEsq[0]);
 
-
-		if ((amostraDir[0] > 0.01 && amostraDir[0] < 0.1)
-				|| (amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)) {
-
-			CorDir.fetchSample(amostraDir, 0);
+		if ((amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)
+				|| (amostraDir[0] > 0.01 && amostraDir[0] < 0.1)) {
 			CorEsq.fetchSample(amostraEsq, 0);
-			System.out.println("Dir "+amostraDir[0]);
-			System.out.println("Esq "+amostraEsq[0]);
-			
-			if ((amostraDir[0] > 0.01 && amostraDir[0] < 0.1)
-					|| (amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)) {
+			CorDir.fetchSample(amostraDir, 0);
+			if ((amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)
+					|| (amostraDir[0] > 0.01 && amostraDir[0] < 0.1)) {
 				éPreto = true;
-				Sound.beep();
+				temBoneco = true;
 			}
-
 		} else {
 			éPreto = false;
+			if (amostraEsq[0] > 0.15 || amostraDir[0] > 0.15) {
+				temBoneco = true;
+			} else {
+				temBoneco = false;
+			}
+
 		}
 	}
 
 	public static boolean getPreto() {
 		return éPreto;
+	}
+
+	public static int getContPreto() {
+		return contPreto;
+	}
+
+	public static int getContNaoPreto() {
+		return contNaoPreto;
+	}
+
+	public void setContNaoPreto(int contNaoPreto) {
+		this.contNaoPreto = contNaoPreto;
+	}
+
+	public void setContPreto(int contPreto) {
+		this.contPreto = contPreto;
+	}
+
+	public static boolean getBoneco() {
+		return temBoneco;
 	}
 
 	@Override
