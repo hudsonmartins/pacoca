@@ -1,4 +1,5 @@
 import lejos.hardware.Button;
+import lejos.hardware.LED;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
@@ -8,9 +9,9 @@ public class MainTesteSEK {
 	private static EV3LargeRegulatedMotor motorEsq = new EV3LargeRegulatedMotor(
 			MotorPort.A);
 	private static EV3LargeRegulatedMotor motorDir = new EV3LargeRegulatedMotor(
-			MotorPort.B);
-	private static EV3LargeRegulatedMotor motorCancela = new EV3LargeRegulatedMotor(
 			MotorPort.C);
+	private static EV3LargeRegulatedMotor motorPorta = new EV3LargeRegulatedMotor(
+			MotorPort.B);
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -23,20 +24,27 @@ public class MainTesteSEK {
 		}
 
 		while (!Button.ESCAPE.isDown()) {
-			andar();
-			if (Button.ESCAPE.isDown()) {
-				System.exit(0);
-			}
-			if (reconhecimento.getPreto()) {
+			Button.LEDPattern(0);
+			if (Reconhecimento.getBoneco()) {
 				parar();
-				Delay.msDelay(1200);
-				if (reconhecimento.getPreto()) {
-					abrirCancela();
+				procurar();
+				if (Reconhecimento.getPreto()) {
+					Button.LEDPattern(1);
+					ré();
+					Delay.msDelay(400);
+					parar();
+					abrirPorta();
 					andar();
+					Delay.msDelay(1200);
+					parar();
+					fecharPorta();
+					Button.LEDPattern(0);
+				} else {
+					Button.LEDPattern(2);
 					Delay.msDelay(1000);
-					fecharCancela();
 				}
-
+			} else {
+				parar();
 			}
 		}
 	}
@@ -58,19 +66,57 @@ public class MainTesteSEK {
 		motorDir.backward();
 	}
 
+	private static void procurar() {
+		motorDir.setSpeed(200);
+		motorEsq.setSpeed(200);
+		motorDir.rotate(45, true);
+		motorEsq.rotate(-45);
+		Delay.msDelay(100);
+		motorEsq.rotate(90, true);
+		motorDir.rotate(-90);
+		Delay.msDelay(100);
+		motorDir.rotate(45, true);
+		motorEsq.rotate(-45);
+	}
+
 	private static void virarEsquerda() {
 		motorEsq.stop(true);
 		motorDir.forward();
 	}
 
-	private static void abrirCancela() {
-		motorCancela.setSpeed(500);
-		motorCancela.rotate(-1080);
+	private static void virarDireita() {
+		motorDir.stop(true);
+		motorEsq.forward();
 	}
 
-	private static void fecharCancela() {
-		motorCancela.setSpeed(500);
-		motorCancela.rotate(1080);
+	private static void desviarEsq() {
+		parar();
+		ré();
+		Delay.msDelay(1500);
+		virarEsquerda();
+		Delay.msDelay(2000);
+		andar();
+		Delay.msDelay(2000);
+		virarDireita();
+		Delay.msDelay(2000);
+		andar();
+		Delay.msDelay(1000);
+		virarDireita();
+		Delay.msDelay(2000);
+		andar();
+		Delay.msDelay(2000);
+		virarEsquerda();
+		Delay.msDelay(2000);
+	}
+
+	private static void abrirPorta() {
+		motorPorta.setSpeed(300);
+		motorPorta.rotate(-100);
+	}
+
+	private static void fecharPorta() {
+		motorPorta.setSpeed(300);
+		motorPorta.rotate(100);
 	}
 
 }
