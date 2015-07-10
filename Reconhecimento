@@ -1,50 +1,48 @@
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
 import lejos.hardware.port.SensorPort;
+import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.HiTechnicColorSensor;
 import lejos.robotics.SampleProvider;
 import lejos.utility.Delay;
 
 public class Reconhecimento implements Runnable {
 
-	private static HiTechnicColorSensor sensorCorEsq = new HiTechnicColorSensor(
-			SensorPort.S4);
-	private static HiTechnicColorSensor sensorCorDir = new HiTechnicColorSensor(
-			SensorPort.S3);
-
+	private static EV3ColorSensor sensorCor = new EV3ColorSensor(SensorPort.S3);
+	private static EV3UltrasonicSensor sensorUS = new EV3UltrasonicSensor(
+			SensorPort.S2);
+	
 	private static boolean éPreto;
 	private static boolean temBoneco;
 	private static int contNaoPreto = 0;
 	public static int contPreto = 0;
+	private static float distancia;
 
 	private static void amostraCor() {
 
-		SampleProvider CorEsq = sensorCorEsq.getRGBMode();
-		SampleProvider CorDir = sensorCorDir.getRGBMode();
-		float amostraEsq[] = new float[CorEsq.sampleSize()];
-		float amostraDir[] = new float[CorDir.sampleSize()];
-		CorEsq.fetchSample(amostraEsq, 0);
-		CorDir.fetchSample(amostraDir, 0);
+		SampleProvider CorDir = sensorCor.getRGBMode();
+		SampleProvider dist = sensorUS.getDistanceMode();
+		float amostraCor[] = new float[CorDir.sampleSize()];
+		float amostraDist[] = new float[dist.sampleSize()];
+		CorDir.fetchSample(amostraCor, 0);
+		dist.fetchSample(amostraDist, 0);
+		distancia = amostraDist[0];
 
-		System.out.println("Dir: " + amostraDir[0] + "\nEsq: " + amostraEsq[0]);
 
-		if ((amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)
-				|| (amostraDir[0] > 0.01 && amostraDir[0] < 0.1)) {
-			CorEsq.fetchSample(amostraEsq, 0);
-			CorDir.fetchSample(amostraDir, 0);
-			if ((amostraEsq[0] > 0.01 && amostraEsq[0] < 0.1)
-					|| (amostraDir[0] > 0.01 && amostraDir[0] < 0.1)) {
+		if (amostraCor[0] > 0.0009 && amostraCor[0] < 0.009) {
+			CorDir.fetchSample(amostraCor, 0);
+			if (amostraCor[0] > 0.0009 && amostraCor[0] < 0.009) {
 				éPreto = true;
 				temBoneco = true;
 			}
 		} else {
 			éPreto = false;
-			if (amostraEsq[0] > 0.15 || amostraDir[0] > 0.15) {
+			if (amostraCor[0] > 0.01) {
 				temBoneco = true;
 			} else {
 				temBoneco = false;
 			}
-
 		}
 	}
 
@@ -58,6 +56,10 @@ public class Reconhecimento implements Runnable {
 
 	public static int getContNaoPreto() {
 		return contNaoPreto;
+	}
+
+	public static float getDistancia() {
+		return distancia;
 	}
 
 	public void setContNaoPreto(int contNaoPreto) {
@@ -79,5 +81,10 @@ public class Reconhecimento implements Runnable {
 			amostraCor();
 
 		}
+	}
+
+	public static void setBoneco(boolean b) {
+		Reconhecimento.temBoneco=b;
+		
 	}
 }
