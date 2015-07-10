@@ -25,33 +25,45 @@ public class MainTesteSEK {
 
 		while (!Button.ESCAPE.isDown()) {
 			Button.LEDPattern(0);
-			if (Reconhecimento.getBoneco()) {
+			if (Reconhecimento.getDistancia() < 0.2) {
+				while (Reconhecimento.getDistancia() > 0.04 && !Reconhecimento.getBoneco()) {
+					andar(100);
+					if (Button.ESCAPE.isDown()){
+						System.exit(0);
+					}
+				}
 				parar();
-				procurar();
+				andar(100);
+				Delay.msDelay(2000);
+				procurar();	
+				//while(Reconhecimento.getBoneco()){
 				if (Reconhecimento.getPreto()) {
 					Button.LEDPattern(1);
-					ré();
-					Delay.msDelay(400);
+					ré(300);
+					Delay.msDelay(450);
 					parar();
 					abrirPorta();
-					andar();
-					Delay.msDelay(1200);
+					andar(300);
+					Delay.msDelay(1500);
 					parar();
 					fecharPorta();
 					Button.LEDPattern(0);
+					//Reconhecimento.setBoneco(false);
 				} else {
 					Button.LEDPattern(2);
 					Delay.msDelay(1000);
 				}
+				//}
+				
 			} else {
-				parar();
+				andar(300);
 			}
 		}
 	}
 
-	private static void andar() {
-		motorEsq.setSpeed(300);
-		motorDir.setSpeed(300);
+	private static void andar(int vel) {
+		motorEsq.setSpeed(vel);
+		motorDir.setSpeed(vel);
 		motorDir.forward();
 		motorEsq.forward();
 	}
@@ -61,7 +73,9 @@ public class MainTesteSEK {
 		motorDir.stop();
 	}
 
-	private static void ré() {
+	private static void ré(int vel) {
+		motorEsq.setSpeed(vel);
+		motorDir.setSpeed(vel);
 		motorEsq.backward();
 		motorDir.backward();
 	}
@@ -87,26 +101,6 @@ public class MainTesteSEK {
 	private static void virarDireita() {
 		motorDir.stop(true);
 		motorEsq.forward();
-	}
-
-	private static void desviarEsq() {
-		parar();
-		ré();
-		Delay.msDelay(1500);
-		virarEsquerda();
-		Delay.msDelay(2000);
-		andar();
-		Delay.msDelay(2000);
-		virarDireita();
-		Delay.msDelay(2000);
-		andar();
-		Delay.msDelay(1000);
-		virarDireita();
-		Delay.msDelay(2000);
-		andar();
-		Delay.msDelay(2000);
-		virarEsquerda();
-		Delay.msDelay(2000);
 	}
 
 	private static void abrirPorta() {
